@@ -17,7 +17,10 @@ to the github hopefully so you guys won't have to worry about the data preproces
 # files = ['../reddit_data/RC_2016-01.bz2']
 
 relevant_subreddits = ['The_Donald', 'PoliticalDiscussion', 'politics', 
-						'socialism', 'Libertarian', 'NeutralPolitics']
+						'socialism', 'Libertarian', 'NeutralPolitics',
+						'Ask_Politics', 'AskTrumpSupporters', 'moderatepolitics', 
+						'democrats', 'Conservative', 'Republican', 
+						'Liberal']
 
 subreddits_dict = dict((key, []) for key in relevant_subreddits) #subreddit to comments from that subreddit
 
@@ -41,9 +44,11 @@ def process_bz2_file(file_path):
 				parent_id = json_format_line['parent_id']
 				timestamp = json_format_line['created_utc']
 				content = json_format_line['body']
-				subreddits_dict[subreddit].append((subreddit, user_id, parent_id, timestamp, content))
+				controversiality = json_format_line['controversiality']
+				score = json_format_line['score']
+				subreddits_dict[subreddit].append((subreddit, user_id, parent_id, timestamp, content, controversiality, score))
 			counter += 1
-			if counter % 100000 == 0:
+			if counter % 200000 == 0:
 				print(counter, ' lines processed.')
 
 
@@ -54,7 +59,7 @@ def generate_csv_name(file_name):
 
 def write_dict_to_csv_files(csv_file_template):
 	print('Writing information to new csv files...')
-	column_names = ['subreddit', 'author', 'parent_id', 'created_utc', 'body']
+	column_names = ['subreddit', 'author', 'parent_id', 'created_utc', 'body', 'controversiality', 'score']
 
 	for subreddit in subreddits_dict:
 		csv_file_name = csv_file_template + subreddit + '.csv'
