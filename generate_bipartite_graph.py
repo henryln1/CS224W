@@ -51,9 +51,9 @@ def generate_graph(files):
 	return bipartite_graph
 
 def save_graph(graph, month):
-	graph_out_txt_file_path = graph_directory + month[:-4] + '.txt'
-	graph_out_gml_file_path = graph_directory + month[:-4] + '.gml'
-	graph_out_gexf_file_path = graph_directory + month[:-4] + '.gexf'
+	graph_out_txt_file_path = graph_directory + month[:-4] + '_bipartite.txt'
+	graph_out_gml_file_path = graph_directory + month[:-4] + '_bipartite.gml'
+	graph_out_gexf_file_path = graph_directory + month[:-4] + '_bipartite.gexf'
 	nx.write_edgelist(graph, graph_out_txt_file_path)
 	nx.write_gml(graph, graph_out_gml_file_path)
 	nx.write_gexf(graph, graph_out_gexf_file_path)
