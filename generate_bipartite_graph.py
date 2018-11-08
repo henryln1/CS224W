@@ -4,6 +4,7 @@ import sys
 import csv
 from os import listdir
 from os.path import isfile, join
+from networkx.algorithms import bipartite
 
 
 '''
@@ -23,9 +24,9 @@ test_files = ['RC_2016-11.bz2_csv_Libertarian.csv']
 def add_to_graph(graph, subreddit_node, user_node):
 	#if user_node not in graph.Nodes:
 	if not graph.has_node(user_node):
-		graph.add_node(user_node)
+		graph.add_node(user_node, bipartite = 0)
 	if not graph.has_node(subreddit_node):#subreddit_node not in graph.nodes:
-		graph.add_node(subreddit_node)
+		graph.add_node(subreddit_node, bipartite = 1)
 	if not graph.has_edge(subreddit_node, user_node):
 		#pass #add edge to graph with weight 1
 		graph.add_edge(subreddit_node, user_node, weight = 1)

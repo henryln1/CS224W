@@ -8,12 +8,6 @@ from os.path import isfile, join
 csv_directory = '../reddit_data/processed_csv/'
 graph_directory = '../reddit_data/graphs/'
 
-relevant_subreddits = ['The_Donald', 'PoliticalDiscussion', 'politics', 
-						'socialism', 'Libertarian', 'NeutralPolitics',
-						'Ask_Politics', 'AskTrumpSupporters', 'moderatepolitics', 
-						'democrats', 'Conservative', 'Republican', 
-						'Liberal']
-
 
 def create_subreddit_user_sets(files):
 	subreddit_to_users_dict = {}
@@ -24,8 +18,6 @@ def create_subreddit_user_sets(files):
 				if not line or line[0] == '' or len(line) < 3 or '[deleted]' == line[2]:
 					continue
 				subreddit_node = line[1]
-				if subreddit_node not in relevant_subreddits:
-					continue
 				user_node = line[2]
 				if subreddit_node not in subreddit_to_users_dict:
 					subreddit_to_users_dict[subreddit_node] = set()
@@ -58,6 +50,9 @@ def save_graph(graph, month):
 	nx.write_gml(graph, graph_out_gml_file_path)
 	nx.write_gexf(graph, graph_out_gexf_file_path)
 
+def visualize_graph(graph, png_file):
+	pass
+
 
 
 def main():
@@ -71,11 +66,6 @@ def main():
 	users_community_dict = create_subreddit_user_sets(files)
 	graph = generate_graph(users_community_dict)
 	save_graph(graph, month)
-
-
-
-
-
 
 
 
