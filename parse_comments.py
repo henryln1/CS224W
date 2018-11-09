@@ -49,11 +49,48 @@ def get_clean_tokens(tokens):
 def get_word_distrib(words):
     n = len(words)*1.0
     word_distrib = Counter(words).most_common(100)
-    word_distrib = [(i,np.divide(j,n)) for (i,j) in word_distrib]
+    word_distrib_all = Counter(words)
+    m = sum([j for (i,j) in word_distrib])*1.0
+    word_distrib_norm = [(i,np.divide(j,m)) for (i,j) in word_distrib]
     #print(word_distrib)
-    X = range(len(word_distrib))
-    y = [j for (i,j) in word_distrib]
-    return (word_distrib, X, y)
+    X = range(len(word_distrib_norm))
+    y = [j for (i,j) in word_distrib_norm]
+    return (word_distrib_all, word_distrib_norm, word_distrib, X, y)
+
+def get_complete_word_distribs(wds, wds_all):
+    complete_wds = []
+    all_words = []
+    
+    for wd in wds:
+        wordList = [i for (i,j) in wd]
+        all_words += wordList
+
+    unique_words = list(set(all_words))
+    unique_word_count = len(unique_words)
+    word_idxs = dict(zip(unique_words, range(unique_word_count)))
+    
+    for wd_idx in range(len(wds)):
+        wd = wds[wd_idx]
+
+        counts = list(np.array([j for (i,j) in wd]))
+        words = [i for (i,j) in wd]
+        word_count = sum(counts)
+        complete_counts = np.ones(unique_word_count)
+
+        for word in unique_words:
+            idx = word_idxs[word]
+            if word in words:
+                i = words.index(word)
+                complete_counts[idx] = counts[i]
+            else:
+
+                count = wds_all[wd_idx][word]
+                if count > 1:
+                    complete_counts[idx] = count
+        
+        complete_wds.append(dict(zip(unique_words, complete_counts)))
+    
+    return complete_wds
 
 def get_word_counts(wds):
     if (len(wds) < 2):
@@ -105,6 +142,44 @@ def compute_metrics(Ps, Qs):
         SRCC.append(srcc)
     return (KL, SRCC)
 
+def compute_dynamicity2(wds):
+    '''
+    Dynamicity (DYN) is defined as:
+        DYN = avg(V_w) where V_w is the volatility of word w:
+            V_w = log(P_ct(w)/P_cT(w))
+            where P_ct(w) is the (normalized) frequency of w in time slice t and
+            where P_cT(w) is the (normalized) entire frequency history T of w
+    '''
+    unique_words = list(wds[0].keys())
+    unique_word_count = len(unique_words)
+    word_idxs = dict(zip(unique_words, range(unique_word_count)))
+
+    P_cT = []
+    Vs = []
+    total_words = 0
+
+    for wd in wds:
+        P_ct = np.array(list(wd.values()))
+        P_cT.append(P_ct)
+        total_words += sum(P_ct)
+        P_ct = P_ct/(1.0*sum(P_ct))
+        Vs.append(np.log2(P_ct))       
+        
+    DYNs = []
+    for v in Vs:
+        v -= np.log2(sum(P_cT)/total_words*1.0)
+        print("sum of v")
+        print(sum(v))
+        print("n words")
+        print(len(v))
+        dyn = (sum(v)*1.0)/len(v)
+        DYNs.append(dyn)
+        print("Time slice %f" %dyn)
+        
+    DYN = sum(DYNs)/(len(DYNs)*1.0)
+    print("Overall DYN: %f"% DYN)
+    return DYN
+
 def compute_dynamicity(wds):
     '''
     Dynamicity (DYN) is defined as:
@@ -113,15 +188,18 @@ def compute_dynamicity(wds):
             where P_ct(w) is the (normalized) frequency of w in time slice t and
             where P_cT(w) is the (normalized) entire frequency history T of w
     '''
-    DYN = 0.0
     P_cT = []
     P_o = np.array([j for (i,j) in wds[0]])
     P_o_words = [i for (i,j) in wds[0]]
+    total_words = 0
+    Vs = []
     for wd in wds:
         if wd != wds[0]:
             P_i = np.array([j for (i,j) in wd])
             P_i_words = [i for (i,j) in wd]
-            P_ct = np.zeros(len(P_o))
+            word_count = sum(P_i)
+            total_words += word_count
+            P_ct = np.ones(len(P_o))
             for i in range(len(P_o_words)):
                 word = P_o_words[i]
                 if word in P_i_words:
@@ -129,13 +207,26 @@ def compute_dynamicity(wds):
                     P_ct[i] = P_i[idx]
         else:
             P_ct = np.array([j for (i,j) in wd])
+            total_words += sum(P_ct)
         P_cT.append(P_ct)
-        DYN += np.log(P_ct)
-    DYN -= (len(P_cT) * np.log(sum(P_cT)))
-    DYN = np.mean(DYN)
+        P_ct = np.divide(P_ct, sum(P_ct))
+        Vs.append(np.log(P_ct))
+    DYNs = []
+    for v in Vs:
+        v -= np.log(sum(P_cT)/total_words*1.0)
+        print("sum of v")
+        print(sum(v))
+        print("n words")
+        print(len(v))
+        dyn = (sum(v)*1.0)/len(v)
+        DYNs.append(dyn)
+        print("Time slice %f" %dyn)
+        
+    DYN = sum(DYNs)/(len(DYNs)*1.0)
+    print("Overall DYN: %f"% DYN)
     return DYN
 
-def plot_word_distribs(Xs, ys, title):
+def plot_word_distrib_norms(Xs, ys, title):
     fig = plt.figure()
     
     plot1, = plt.plot(Xs[0], ys[0])
@@ -146,11 +237,13 @@ def plot_word_distribs(Xs, ys, title):
     plt.ylabel("Number of occurrences (normalized over number of words)")
     plt.title("Word Distribution: Subreddit \"{0}\"".format(title))
     plt.legend( [plot1, plot2, plot3],  ['2014', '2015', '2016'], loc= 4 )
-    plt.savefig("100_{0}.png".format(title))
+    plt.savefig("100norm_{0}.png".format(title))
     #plt.show()
 
 def main():
     word_distribs = []
+    word_distribs_norm = []
+    word_distribs_all = []
     Xs, ys = [], []
     for i in range(int(sys.argv[1])):
         file_directory = './reddit_data/'
@@ -158,15 +251,18 @@ def main():
         file_path = file_directory + file_name
         tokens = get_tokens(file_path)
         words = get_clean_tokens(tokens)
-        word_distrib, X, y = get_word_distrib(words)
+        word_distrib_all, word_distrib_norm, word_distrib, X, y = get_word_distrib(words)
         word_distribs.append(word_distrib)
+        word_distribs_norm.append(word_distrib_norm)
+        word_distribs_all.append(word_distrib_all)
         Xs.append(X)
         ys.append(y)
-    Ps, Qs = get_word_counts(word_distribs)
+    complete_wds = get_complete_word_distribs(word_distribs, word_distribs_all)
+    Ps, Qs = get_word_counts(word_distribs_norm)
     print ("KL and SRCC")
     print (compute_metrics(Ps, Qs))
-    #print ("DYN %d" %compute_dynamicity(word_distribs))
-    plot_word_distribs(Xs, ys, (file_name.split('_csv_')[1]).split('.csv')[0])
+    print ("DYN %f" %compute_dynamicity2(complete_wds))
+    plot_word_distrib_norms(Xs, ys, (file_name.split('_csv_')[1]).split('.csv')[0])
 
 if __name__ == "__main__":
 	main()
