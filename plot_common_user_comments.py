@@ -38,7 +38,9 @@ def main():
 	comment_counts_dict = {}
 	politics_users_monthly = create_month_to_users_dict(subreddits_to_files_dict['politics'][0])
 	donald_users_monthly = create_month_to_users_dict(subreddits_to_files_dict['The_Donald'][0])
+	print('politics')
 	recurring_users_politics = find_recurring_users(politics_users_monthly)
+	print('donald')
 	recurring_users_donald = find_recurring_users(donald_users_monthly)
 	common_users = set(recurring_users_donald).intersection(set(recurring_users_politics))
 	common_users_comment_history_politics = find_comment_counts(common_users, subreddits_to_files_dict['politics'][1], 'politics')

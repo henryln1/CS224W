@@ -58,6 +58,11 @@ def find_recurring_users(month_to_users_dict):
 			user_recurrence_count[user] += 1
 
 	recurring_users = [x for x in user_recurrence_count if user_recurrence_count[x] >= 2]
+	temp = [1,2,3,4,5,6]
+	for i in temp:
+		print(i)
+		print(len([x for x in user_recurrence_count if user_recurrence_count[x] >= i]))
+
 	return recurring_users
 
 
