@@ -24,3 +24,4 @@ for i in $eighteen_files; do
 	python generate_bipartite_graph.py ${i}
 	python generate_community_relation_graph.py ${i}
 done
+

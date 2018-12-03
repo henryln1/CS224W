@@ -28,8 +28,6 @@ graph_directory = '../reddit_data/graphs/'
 
 
 
-
-
 def save_graph(graph, month):
 	graph_out_txt_file_path = graph_directory + month + '_user_comments.txt'
 	graph_out_gml_file_path = graph_directory + month + '_user_comments.gml'
@@ -137,6 +135,7 @@ def main():
 
 
 	months = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
+	months = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10'] #this is for 2018
 	continuous_users = set()
 	for month in months:
 		print('Month: ', month)

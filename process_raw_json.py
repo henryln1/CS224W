@@ -94,8 +94,9 @@ def main():
 	print('Beginning to process bz2 or xz file...')
 	file_directory = '../reddit_data/'
 	#file_names = ['RC_2017-07.bz2', 'RC_2017-08.bz2', 'RC_2017-09.bz2', 'RC_2017-10.bz2', 'RC_2017-11.bz2']
-	file_names = ['RC_2018-01.xz', 'RC_2018-02.xz', 'RC_2018-03.xz', 'RC_2018-04.xz', 'RC_2018-05.xz', 'RC_2018-06.xz']
+	#file_names = ['RC_2018-01.xz', 'RC_2018-02.xz', 'RC_2018-03.xz', 'RC_2018-04.xz', 'RC_2018-05.xz', 'RC_2018-06.xz']
 	#file_name = sys.argv[1]
+	file_names = ['RC_2018-07.xz', 'RC_2018-08.xz', 'RC_2018-09.xz', 'RC_2018-10.xz']
 	for file_name in file_names:
 		file_path = file_directory + file_name
 		csv_out_file_name_template = generate_csv_name(file_name)
