@@ -65,6 +65,8 @@ def main():
 	files = [csv_directory + f for f in files]
 	users_community_dict = create_subreddit_user_sets(files)
 	graph = generate_graph(users_community_dict)
+	if 'xz' in month:
+		month += '2'
 	save_graph(graph, month)
 
 
