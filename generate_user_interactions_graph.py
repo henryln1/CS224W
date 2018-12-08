@@ -5,6 +5,7 @@ from os import listdir
 from os.path import isfile, join
 import random
 from collections import defaultdict
+random.seed(42)
 
 '''
 Takes in the csv files for a given month (each csv file covers one subreddit) 
@@ -94,9 +95,13 @@ def generate_user_graph(users, thread_to_user_dict):
 	user_comments_graph = nx.Graph()
 	for user in users:
 		user_comments_graph.add_node(user)
-	print('Size of dict: ', len(thread_to_user_dict.keys()))
+	print('Total Number of Threads: ', len(thread_to_user_dict.keys()))
 	weights_dict = defaultdict(int)
+	counter = 0
 	for thread in thread_to_user_dict:
+		if counter % 3000 == 0:
+			print(counter)
+		counter += 1
 		users_that_commented = list(thread_to_user_dict[thread])
 		len_users = len(users_that_commented)
 		for index in range(len_users):
@@ -107,17 +112,16 @@ def generate_user_graph(users, thread_to_user_dict):
 					print('ERROR same users appearing in 1 and 2')
 					print(thread)
 					print(users_that_commented)
-				if user_comments_graph.has_node(user_1) and user_comments_graph.has_node(user_2):
+				#if user_comments_graph.has_node(user_1) and user_comments_graph.has_node(user_2):
+				try:
 					weights_dict[tuple(sorted([user_1, user_2]))] += 1
+				except:
+					continue
 
-	print('Weights calculated.')
 	counter = 0 
 	for pair in weights_dict:
 		user1, user2 = pair
 		user_comments_graph.add_edge(user1, user2, weight = weights_dict[pair])
-		if counter % 10000 == 0:
-			print(counter)
-		counter += 1
 
 	return user_comments_graph	
 
@@ -135,7 +139,7 @@ def main():
 
 
 	months = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
-	months = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10'] #this is for 2018
+	#months = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10'] #this is for 2018
 	continuous_users = set()
 	for month in months:
 		print('Month: ', month)
@@ -147,9 +151,9 @@ def main():
 			continuous_users = users
 		else:
 			continuous_users = continuous_users.intersection(users) #we only want users that have stayed the entire year
-
+	print('Size of continuous users: ', len(continuous_users))
 	#sample 1000 random users:
-	continuous_users = random.sample(continuous_users, 1000)
+	#continuous_users = random.sample(continuous_users, 10000)
 	print('Number sampled: ', len(continuous_users))
 
 	for month in months: #reiterate and create our graph for each month

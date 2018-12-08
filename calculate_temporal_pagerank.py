@@ -124,6 +124,10 @@ def main():
 	sorted_rankings_set = set([x[0] for x in sorted_rankings][-100:])
 	print('Intersection size: ' , len(sorted_rankings_set.intersection(sorted_degrees_set)))
 
+	with open('temporal_pagerank_' + year + '_' + graph_type + '.txt', 'w') as f:
+		for temp in sorted_rankings:
+			f.write(str(temp) + '\n')
+		f.close()
 	#print('Intersection of top 100: ', len(set(sorted_rankings[-100:]).intersection(set(sorted_degrees[-10:]))))
 
 

@@ -72,6 +72,7 @@ def main():
 	print('Number sampled: ', len(continuous_users))
 
 	for month in months:
+		print('Month: ', month)
 		month = year + '-' + month
 		files = [f for f in listdir(csv_directory) if isfile(join(csv_directory, f)) and month in f]
 		files = [csv_directory + f for f in files]
@@ -88,7 +89,7 @@ def main():
 	for user in user_most_popular_subreddit_history:
 		row = [user] + user_most_popular_subreddit_history[user]
 		list_of_lists.append(row)
-	with open('test.txt', 'w') as f:
+	with open('most_popular_subreddits_' + year + '.txt', 'w') as f:
 		for row in list_of_lists:
 			f.write(','.join(row) + '\n')
 		f.close()
